@@ -21,7 +21,14 @@ app.use(bodyParser.urlencoded({extended: false}));
 app.use(bodyParser.json());
 
 app.get("/", (req, res) => {
-    res.render("index");
+    Pergunta.findAll({raw: true, order: [
+        ['id', 'desc']
+    ]}).then(perguntas => {
+        res.render("index", {
+            perguntas: perguntas,
+        });
+    });
+    
 });
 
 app.get("/perguntar", (req, res) => {
@@ -36,6 +43,21 @@ app.post("/salvarpergunta", (req, res) => {
         descricao: descricao,
     }).then(() => {
        res.redirect("/");
+    });
+});
+
+app.get("/pergunta/:id", (req, res) => {
+    var id = req.params.id;
+    Pergunta.findOne({
+        where: {id: id}
+    }).then(pergunta => {
+        if (pergunta != undefined) {
+            res.render("pergunta", {
+                pergunta: pergunta,
+            });
+        } else {
+            res.redirect("/")
+        }
     });
 });
 
